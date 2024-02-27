@@ -1,0 +1,12 @@
+venv/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
