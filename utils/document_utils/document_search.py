@@ -25,6 +25,7 @@ def show_search_result(top_k, content, filter_str, metrics, use_full_text_retrie
                        file_name=None, file_bytes_data=None):
     write_info(f'检索内容:{content}, 参数：top_k:{top_k}, filter_str:{filter_str}, metrics:{metrics}, '
                f'use_full_text_retrieval:{use_full_text_retrieval}, only_show_content:{only_show_content}')
+    
     try:
         resp = do_query_content(top_k=top_k, content=content, filter_str=filter_str, metrics=metrics,
                                 use_full_text_retrieval=use_full_text_retrieval,
