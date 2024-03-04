@@ -82,7 +82,10 @@ def show_create_document_collection_div(col_outer):
             help='只允许字母、数字和下划线_, 且以字母开头')
         horizontal_input('EmbeddingModel:').selectbox(
             '', key='embedding_model', options=['text-embedding-v1', 'text-embedding-v2', 'm3e-base', 'm3e-small',
-                                                'text2vec'], label_visibility='collapsed')
+                                                'text2vec', 'multimodal-embedding-one-peace-v1', 'clip-vit-b-32',
+                                                'clip-vit-b-16', 'clip-vit-l-14', 'clip-vit-l-14-336px',
+                                                'clip-rn50', 'clip-rn101', 'clip-rn50x4', 'clip-rn50x16',
+                                                'clip-rn50x64', ], label_visibility='collapsed')
         horizontal_input('Metadata:').text_area(
             '', key='metadata', placeholder='json格式', label_visibility='collapsed', on_change=check_create_metadata,
             help='元数据定义，格式为map json字符串，其中key为字段名，value为字段类型')

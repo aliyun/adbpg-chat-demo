@@ -79,7 +79,7 @@ def show_specific_document_collection_header():
 
 
 def show_specific_document_collection():
-    page = st.sidebar.radio('', ['问答', '文档检索', '上传文档', '上传chunks', '文档列表'])
+    page = st.sidebar.radio('', ['问答', '文档检索', '图片检索', '上传文档', '上传chunks', '文档列表'])
     if page in ('上传文档', '上传chunks', '文档列表'):
         main_col1, main_col2 = st.columns([3, 2])
         with main_col1:
@@ -105,6 +105,16 @@ def show_specific_document_collection():
         with main_col1:
             show_specific_document_collection_header()
             document_utils.qa_page(question)
+        with main_col2:
+            st.markdown('### 调用代码示例：')
+            st.code(st.session_state.kb_code_content, language='python')
+        return
+    if page == '图片检索':
+        clear_pre_page_kb_code_content('图片检索')
+        main_col1, main_col2 = st.columns([3, 2])
+        with main_col1:
+            show_specific_document_collection_header()
+            document_utils.retrieval_image_search_page()
         with main_col2:
             st.markdown('### 调用代码示例：')
             st.code(st.session_state.kb_code_content, language='python')
