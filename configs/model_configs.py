@@ -1,6 +1,6 @@
 import os
 
-DASHSCOPE_API_KEY = os.environ['DASHSCOPE_API_KEY']
+DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
 
 PROMPT_TEMPLATES = {
     "default":

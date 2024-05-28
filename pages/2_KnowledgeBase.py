@@ -11,7 +11,7 @@ for k, v in st.session_state.to_dict().items():
 
 def show_select_namespace():
     st.session_state.keep_show_select_namespace = True
-    st.markdown("**请选择:**")
+    st.markdown("**Please select:**")
     col1, col2 = st.columns(2)
     with col1:
         st.selectbox("Namespace：", options=st.session_state.all_namespaces, key="collection_namespace")
@@ -22,12 +22,12 @@ def show_select_namespace():
     if st.session_state.collection_namespace in st.session_state.namespace_password_cache:
         st.session_state.collection_namespace_password = \
             st.session_state.namespace_password_cache[st.session_state.collection_namespace]
-        utils.write_info(f'{st.session_state.collection_namespace} 密码已缓存，无需再次输入')
+        utils.write_info(f'{st.session_state.collection_namespace} password already cached')
     else:
         st.session_state.collection_namespace_password = st.session_state.namespace_password
-    if st.button("确定"):
+    if st.button("Confirm"):
         if not st.session_state.collection_namespace_password:
-            utils.write_error("Password不能为空")
+            utils.write_error("Password can not be empty")
         logger.info(f"check password with namespace: {st.session_state.collection_namespace}")
         try:
             st.session_state.collections = st.session_state.adbpg_client.list_collections(
@@ -67,65 +67,54 @@ def show_specific_document_collection_header():
              f'{st.session_state.collection_namespace}/'
              f'{st.session_state.selected_document_collection.collection_name}')
     col1, col2, buf = st.columns((1, 1, 3))
-    if col1.button("切换Namespace"):
+    if col1.button("Choose other namespaces"):
         st.session_state.kb_code_content = ''
         del st.session_state['selected_document_collection']
         del st.session_state['collection_namespace']
         st.rerun()
-    if col2.button('切换知识库'):
+    if col2.button('Choose other collections'):
         st.session_state.kb_code_content = ''
         del st.session_state['selected_document_collection']
         st.rerun()
 
 
 def show_specific_document_collection():
-    page = st.sidebar.radio('', ['问答', '文档检索', '图片检索', '上传文档', '上传chunks', '文档列表'])
-    if page in ('上传文档', '上传chunks', '文档列表'):
+    page = st.sidebar.radio('', ['Text Retrieval', 'Image Retrieval', 'Upload Document', 'Upload Chunks', 'Document List'])
+    if page in ('Upload Document', 'Upload Chunks', 'Document List'):
         main_col1, main_col2 = st.columns([3, 2])
         with main_col1:
             show_specific_document_collection_header()
             st.divider()
-            if page == '上传文档':
-                clear_pre_page_kb_code_content('上传文档')
+            if page == 'Upload Document':
+                clear_pre_page_kb_code_content('Upload Document')
                 document_utils.upload_document_page()
-            elif page == '上传chunks':
-                clear_pre_page_kb_code_content('上传chunks')
+            elif page == 'Upload Chunks':
+                clear_pre_page_kb_code_content('Upload Chunks')
                 document_utils.upsert_chunks_page()
             else:
-                clear_pre_page_kb_code_content('文档列表')
+                clear_pre_page_kb_code_content('Document List')
                 document_utils.list_documents_page()
         with main_col2:
-            st.markdown('### 调用代码示例：')
+            st.markdown('### Code invocation example：')
             st.code(st.session_state.kb_code_content, language='python')
         return
-    if page == '问答':
-        clear_pre_page_kb_code_content('问答')
-        question = st.chat_input('请输入问题, 按回车确认')
-        main_col1, main_col2 = st.columns([3, 2])
-        with main_col1:
-            show_specific_document_collection_header()
-            document_utils.qa_page(question)
-        with main_col2:
-            st.markdown('### 调用代码示例：')
-            st.code(st.session_state.kb_code_content, language='python')
-        return
-    if page == '图片检索':
-        clear_pre_page_kb_code_content('图片检索')
+    if page == 'Image Retrieval':
+        clear_pre_page_kb_code_content('Image Retrieval')
         main_col1, main_col2 = st.columns([3, 2])
         with main_col1:
             show_specific_document_collection_header()
             document_utils.retrieval_image_search_page()
         with main_col2:
-            st.markdown('### 调用代码示例：')
+            st.markdown('### Code invocation example：')
             st.code(st.session_state.kb_code_content, language='python')
     else:
-        clear_pre_page_kb_code_content('文档检索')
+        clear_pre_page_kb_code_content('Text Retrieval')
         main_col1, main_col2 = st.columns([3, 2])
         with main_col1:
             show_specific_document_collection_header()
             document_utils.retrieval_search_page()
         with main_col2:
-            st.markdown('### 调用代码示例：')
+            st.markdown('### Code invocation example：')
             st.code(st.session_state.kb_code_content, language='python')
 
 
@@ -143,21 +132,21 @@ def init():
 
 def show_document_collections():
     st.title(f'{st.session_state.adbpg_instance_id}/{st.session_state.collection_namespace}')
-    if st.button("切换Namespace"):
+    if st.button("Choose other namespaces"):
         st.session_state.kb_code_content = ''
         del st.session_state['collection_namespace']
         st.rerun()
     st.divider()
 
     # header:
-    st.markdown("##### 文档库列表")
+    st.markdown("##### Collection List")
 
     col1, col2, buf = st.columns((1, 1, 1))
     document_collection_utils.show_create_document_collection_div(col1)
-    if col2.button("刷新列表"):
+    if col2.button("Flush List"):
         try:
             document_collection_utils.refresh_document_collections_in_session()
-            utils.write_info("刷新列表成功")
+            utils.write_info("Flush successfully")
         except Exception as e:
             logger.info(f"failed to list collections: {str(e)}")
             utils.write_error(str(e))
@@ -181,7 +170,7 @@ def main():
             st.divider()
             show_select_namespace()
         with main_col2:
-            st.markdown('### 调用代码示例：')
+            st.markdown('### Code invocation example：')
             st.code(st.session_state.kb_code_content, language='python')
         return
     if 'selected_document_collection' in st.session_state:
@@ -191,7 +180,7 @@ def main():
     with main_col1:
         show_document_collections()
     with main_col2:
-        st.markdown('### 调用代码示例：')
+        st.markdown('### Code invocation example：')
         st.code(st.session_state.kb_code_content, language='python')
 
 

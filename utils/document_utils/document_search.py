@@ -23,7 +23,7 @@ def do_query_content(top_k, content, filter_str, metrics, use_full_text_retrieva
 
 def show_search_result(top_k, content, filter_str, metrics, use_full_text_retrieval, only_show_content, show_ref_image,
                        file_name=None, file_bytes_data=None):
-    write_info(f'检索内容:{content}, 参数：top_k:{top_k}, filter_str:{filter_str}, metrics:{metrics}, '
+    write_info(f'Query Content:{content}, Args：top_k:{top_k}, filter_str:{filter_str}, metrics:{metrics}, '
                f'use_full_text_retrieval:{use_full_text_retrieval}, only_show_content:{only_show_content}')
     
     try:
@@ -42,7 +42,7 @@ def show_search_result(top_k, content, filter_str, metrics, use_full_text_retrie
             return
 
         st.divider()
-        st.markdown('### 检索结果: ')
+        st.markdown('### Query Result: ')
         for data in resp:
             if not data.loader_metadata:
                 st.write(data.content)
@@ -65,13 +65,13 @@ def show_search_result(top_k, content, filter_str, metrics, use_full_text_retrie
 
 
 def show_image_search_result(top_k, content, metrics, file_name=None, file_bytes_data=None):
-    write_info(f'检索内容:{content}, 图片文件名:{file_name}, 参数：top_k:{top_k}, metrics:{metrics}')
+    write_info(f'Query Content:{content}, FileName:{file_name}, Args：top_k:{top_k}, metrics:{metrics}')
     try:
         resp = do_query_content(top_k=top_k, content=content, filter_str="", metrics=metrics,
                                 use_full_text_retrieval=False,
                                 file_name=file_name, file_bytes_data=file_bytes_data)
         st.divider()
-        st.markdown('### 检索结果: ')
+        st.markdown('### Query Result: ')
         for data in resp:
             if not data.loader_metadata:
                 st.write(data.content)
@@ -87,33 +87,33 @@ def show_image_search_result(top_k, content, metrics, file_name=None, file_bytes
 
 
 def retrieval_search_page():
-    with st.expander('高级选项'):
+    with st.expander('Advanced Options'):
         top_k = st.number_input('TopK:', value=10)
         filter_str = st.text_area('Filter:')
         metrics = st.selectbox('Metrics:', options=[None, 'cosine', 'l2', 'ip'])
-        use_full_text_retrieval = st.toggle('是否全文检索')
-        only_show_content = st.toggle('只显示Content内容', value=True)
-        show_ref_image = st.toggle('搜索的文本显示关联图片', value=True)
+        use_full_text_retrieval = st.toggle('Use full-text search')
+        only_show_content = st.toggle('Display only the Content', value=True)
+        show_ref_image = st.toggle('The text searched displays associated images', value=True)
 
     # 支持的检索项
-    content = st.text_input('检索内容: ')
-    if st.button('文档检索'):
+    content = st.text_input('Query Content: ')
+    if st.button('Search'):
         show_search_result(top_k, content, filter_str, metrics, use_full_text_retrieval, only_show_content, show_ref_image)
 
 
 def retrieval_image_search_page():
-    with st.expander('高级选项'):
+    with st.expander('Advanced Options'):
         top_k = st.number_input('TopK:', value=10)
         metrics = st.selectbox('Metrics:', options=[None, 'cosine', 'l2', 'ip'])
 
     # 支持的检索项
-    content = st.text_input('检索内容: ')
-    uploaded_file = st.file_uploader("选择图片文件")
+    content = st.text_input('Query Content: ')
+    uploaded_file = st.file_uploader("Choose an image file")
     file_bytes_data = None
     file_name = None
     if uploaded_file is not None:
         file_bytes_data = uploaded_file.read()
         file_name = uploaded_file.name
 
-    if st.button('图片检索'):
+    if st.button('Search'):
         show_image_search_result(top_k, content, metrics, file_name, file_bytes_data)

@@ -23,11 +23,11 @@ def show_confirm_delete_modal():
         st.session_state.need_to_delete_document = d
 
     if 'show_confirm_delete_modal' in st.session_state:
-        delete_modal = Modal(f"是否删除:{st.session_state.show_confirm_delete_modal.file_name}",
+        delete_modal = Modal(f"To Delete:{st.session_state.show_confirm_delete_modal.file_name}",
                              key=f"modal_del_doc_{st.session_state.show_confirm_delete_modal.file_name}",
                              max_width=400)
         with delete_modal.container():
-            st.button("确认删除", on_click=set_delete_document_session,
+            st.button("Confirm", on_click=set_delete_document_session,
                       args=[st.session_state.show_confirm_delete_modal])
 
 
@@ -82,7 +82,7 @@ def show_detail_modal():
 def check_and_delete_document():
     if "need_to_delete_document" not in st.session_state or not st.session_state.need_to_delete_document:
         return
-    write_info(f"开始删除{st.session_state.need_to_delete_document.file_name}...")
+    write_info(f"To Delete {st.session_state.need_to_delete_document.file_name}...")
     try:
         st.session_state.adbpg_client.delete_document(
             namespace=st.session_state.collection_namespace,
@@ -90,12 +90,12 @@ def check_and_delete_document():
             collection=st.session_state.selected_document_collection.collection_name,
             file_name=st.session_state.need_to_delete_document.file_name,
         )
-        st.session_state.list_doc_info_msg = f"删除{st.session_state.need_to_delete_document.file_name}成功"
+        st.session_state.list_doc_info_msg = f"Delete {st.session_state.need_to_delete_document.file_name} successfully"
         st.session_state.list_doc_err_msg = ''
     except Exception as e:
         logger.error(e)
         st.session_state.list_doc_info_msg = ''
-        st.session_state.list_doc_err_msg = f'删除{st.session_state.need_to_delete_document.file_name}失败：{str(e)}'
+        st.session_state.list_doc_err_msg = f'Failed to delete {st.session_state.need_to_delete_document.file_name}：{str(e)}'
     finally:
         if 'need_to_delete_document' in st.session_state:
             del st.session_state['need_to_delete_document']
@@ -123,7 +123,7 @@ def list_documents_page():
         write_error(str(e))
         return
     colms = st.columns((1, 2, 2, 2))
-    fields = ["序号", '名称', '来源', '操作']
+    fields = ["Index", 'Name', 'Source', 'Ops']
     for col, field_name in zip(colms, fields):
         # header
         col.write(field_name)
@@ -132,9 +132,9 @@ def list_documents_page():
         col1.write(i)
         col2.write(doc.file_name)
         col3.write(doc.source)
-        col4.button('详情', key=f'detail_doc_{i}_{st.session_state.page_index}',
+        col4.button('Detail', key=f'detail_doc_{i}_{st.session_state.page_index}',
                     on_click=set_session_show_document_detail, args=[doc])
-        col5.button('删除', key=f'delete_doc_{i}_{st.session_state.page_index}',
+        col5.button('Delete', key=f'delete_doc_{i}_{st.session_state.page_index}',
                     on_click=set_session_show_delete_document_modal, args=[doc])
     check_and_delete_document()
     write_info(st.session_state.list_doc_info_msg)

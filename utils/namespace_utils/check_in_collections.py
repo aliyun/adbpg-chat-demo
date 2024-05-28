@@ -34,12 +34,12 @@ def show_checkin_namespace_password_modal():
         del st.session_state['show_checkin_namespace_password_modal']
         st.session_state.checkin_err_msg = ''
         st.rerun()
-    modal = Modal(f"进入{ns}", key=f"modal_in_{ns}", max_width=400)
+    modal = Modal(f"Enter {ns}", key=f"modal_in_{ns}", max_width=400)
     with modal.container():
         col, buf = st.columns([4, 1])
         with col:
             password = st.text_input('NamespacePassword:', key=f'namespace_password_{ns}', type='password')
-            st.button('确定', on_click=check_password, args=[ns, password])
+            st.button('Confirm', on_click=check_password, args=[ns, password])
         write_error(st.session_state.checkin_err_msg)
 
 

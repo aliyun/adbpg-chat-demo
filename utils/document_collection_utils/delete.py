@@ -11,9 +11,9 @@ def set_delete_document_collection(dc):
 
 def show_delete_document_collection_modal(
         dc: gpdb_20160503_models.ListDocumentCollectionsResponseBodyItemsCollectionList):
-    delete_modal = Modal(f"是否删除:{dc.collection_name}", key=f"modal_del_{dc.collection_name}", max_width=400)
+    delete_modal = Modal(f"To Delete:{dc.collection_name}", key=f"modal_del_{dc.collection_name}", max_width=400)
     with delete_modal.container():
-        st.button("确认删除", on_click=set_delete_document_collection, args=[dc])
+        st.button("Confirm", on_click=set_delete_document_collection, args=[dc])
 
 
 def check_and_delete_document_collection():
@@ -26,14 +26,14 @@ def check_and_delete_document_collection():
         st.session_state.document_collections.remove(need_to_delete_dc)
         st.session_state.collections.remove(need_to_delete_dc.collection_name)
         st.rerun()
-    write_info(f"开始删除{need_to_delete_dc.collection_name}...")
+    write_info(f"Starting to delte {need_to_delete_dc.collection_name}...")
     logger.info(f"starting to delete document collection: {need_to_delete_dc.collection_name}")
     try:
         st.session_state.adbpg_client.delete_document_collection(
             namespace=st.session_state.collection_namespace,
             namespace_password=st.session_state.namespace_password_cache[st.session_state.collection_namespace],
             collection=need_to_delete_dc.collection_name)
-        write_info(f"删除{need_to_delete_dc.collection_name}成功")
+        write_info(f"Delete {need_to_delete_dc.collection_name} successfully")
     except Exception as e:
         st.session_state.document_collections.append(need_to_delete_dc)
         st.session_state.collections.append(need_to_delete_dc.collection_name)

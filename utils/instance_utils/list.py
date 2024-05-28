@@ -49,7 +49,7 @@ def click_instance_btn():
 
 
 def get_instance_list(region):
-    write_info(f'获取Region（{region}）实例...')
+    write_info(f'Get Region（{region}）instances...')
     if 'click_instance_btn' in st.session_state and st.session_state.click_instance_btn:
         return
     adbpg_client = AdbpgClient(region=region)
@@ -60,9 +60,9 @@ def get_instance_list(region):
         st.session_state.instance_list = []
         return
     if len(st.session_state.instance_list) == 0:
-        write_info(f'当前Region（{region}）不存在开启向量引擎优化的实例')
+        write_info(f'No vector enabled instances exist of the current region（{region}）')
     else:
-        write_info(f'获取Region（{region}）实例成功。')
+        write_info(f'Get Region（{region}）instances successfully.')
 
 
 def list_div():
@@ -80,7 +80,7 @@ def list_div():
     get_instance_list(region)
 
     colms = st.columns((1, 3, 3, 2))
-    fields = ["序号", '名称', '版本', '状态']
+    fields = ["Index", 'Name', 'Version', 'Status']
     for col, field_name in zip(colms, fields):
         # header
         col.write(field_name)

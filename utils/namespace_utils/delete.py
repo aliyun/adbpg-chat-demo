@@ -8,7 +8,7 @@ def show_delete_namespace_modal(namespace, modal):
         st.session_state.need_to_delete_namespace = ns
 
     with modal.container():
-        st.button("确认删除", on_click=set_delete_namespace, args=[namespace])
+        st.button("Delete Confim", on_click=set_delete_namespace, args=[namespace])
 
 
 def check_and_delete_namespace_div():
@@ -17,7 +17,7 @@ def check_and_delete_namespace_div():
     if st.session_state.need_to_delete_namespace in st.session_state.all_namespaces:
         st.session_state.all_namespaces.remove(st.session_state.need_to_delete_namespace)
         st.rerun()
-    write_info(f"开始删除{st.session_state.need_to_delete_namespace}...")
+    write_info(f"Starting to Delete {st.session_state.need_to_delete_namespace}...")
     logger.info(f"starting to delete namespace: {st.session_state.need_to_delete_namespace}")
     try:
         st.session_state.adbpg_client.delete_namespace(
@@ -30,7 +30,7 @@ def check_and_delete_namespace_div():
         if 'collection_namespace' in st.session_state and \
                 st.session_state.collection_namespace == st.session_state.need_to_delete_namespace:
             del st.session_state['collection_namespace']
-        write_info(f"删除{st.session_state.need_to_delete_namespace}成功")
+        write_info(f"Delete {st.session_state.need_to_delete_namespace} successfully")
     except Exception as e:
         st.session_state.all_namespaces.append(st.session_state.need_to_delete_namespace)
         logger.error(e)

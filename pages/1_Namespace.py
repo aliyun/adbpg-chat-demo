@@ -40,7 +40,7 @@ def main():
     with main_col2:
         if 'namespace_code_content' not in st.session_state:
             st.session_state.namespace_code_content = ''
-        st.markdown('### 调用代码示例：')
+        st.markdown('### Code invocation example：')
         st.code(st.session_state.namespace_code_content, language='python')
 
 

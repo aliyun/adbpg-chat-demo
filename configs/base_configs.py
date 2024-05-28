@@ -2,7 +2,6 @@ import logging
 
 log_verbose = True
 
-# 日志格式
 LOG_FORMAT = "%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s"
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
