@@ -17,6 +17,8 @@ pip install -r requirements.txt
 
 ## 启动服务：
 
+如果使用灵机作为LLM：
+
 准备AK，SK，灵积api-key，然后执行:
 
 ```shell
@@ -26,6 +28,20 @@ export DASHSCOPE_API_KEY='API_KEY'
 
 streamlit run Home.py
 ```
+
+如果使用PAI EAS作为LLM：
+
+准备AK，SK，PAI的Endpoint和Token，然后执行:
+
+```shell
+export ALI_CLOUD_ACCESS_KEY_ID='AK' 
+export ALI_CLOUD_ACCESS_KEY_SECRET='SK'
+export EAS_SERVICE_URL='EAS_SERVICE_URL'
+export EAS_SERVICE_TOKEN='EAS_SERVICE_TOKEN'
+
+streamlit run Home.py
+```
+
 
 #### 如果要指定实例：
 

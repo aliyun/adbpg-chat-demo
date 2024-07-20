@@ -1,17 +1,43 @@
 import random
 from http import HTTPStatus
 import dashscope
-from configs.model_configs import PROMPT_TEMPLATES
+from configs.model_configs import PROMPT_TEMPLATES, EAS_SERVICE_URL, EAS_SERVICE_TOKEN
 from typing import List
 from dashscope.api_entities.dashscope_response import (Message, Role)
 import streamlit as st
+from langchain_community.llms.pai_eas_endpoint import PaiEasEndpoint
 
 
-def call_with_messages(retrieval_contents: List[str], question: str) -> str:
+def call_pai_eas(retrieval_contents: List[str], question: str) -> str:
     if retrieval_contents:
-        msg_content = PROMPT_TEMPLATES.get('default').replace('{{ context }}', '\n'.join(retrieval_contents)).replace('{{ question }}', question)
+        msg_content = PROMPT_TEMPLATES.get('default').replace('{ context }', '\n'.join(retrieval_contents)).replace('{ question }', question)
     else:
-        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{{ question }}', question)
+        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{ question }', question)
+
+    messages = [Message(role=Role.SYSTEM, content='You are a helpful assistant.'),
+                Message(role=Role.USER, content=msg_content)]
+    if len(st.session_state.qa_history) == 0:
+        st.session_state.qa_history = messages.copy()
+    else:
+        st.session_state.qa_history.append(Message(role=Role.USER, content=msg_content))
+    llm = PaiEasEndpoint(
+        eas_service_url=EAS_SERVICE_URL,
+        eas_service_token=EAS_SERVICE_TOKEN,
+    )
+    output = llm.invoke({})
+    st.session_state.qa_history.append(
+        Message(role='assistant',
+                content=str(output),
+                image_urls=None)
+    )
+    return str(output)
+
+
+def call_dashscope(retrieval_contents: List[str], question: str) -> str:
+    if retrieval_contents:
+        msg_content = PROMPT_TEMPLATES.get('default').replace('{ context }', '\n'.join(retrieval_contents)).replace('{ question }', question)
+    else:
+        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{ question }', question)
 
     messages = [Message(role=Role.SYSTEM, content='You are a helpful assistant.'),
                 Message(role=Role.USER, content=msg_content)]
@@ -39,6 +65,12 @@ def call_with_messages(retrieval_contents: List[str], question: str) -> str:
             response.request_id, response.status_code,
             response.code, response.message
         ))
+
+
+def call_with_messages(retrieval_contents: List[str], question: str) -> str:
+    if EAS_SERVICE_URL:
+        return call_pai_eas(retrieval_contents, question)
+    return call_dashscope(retrieval_contents, question)
 
 
 if __name__ == '__main__':
