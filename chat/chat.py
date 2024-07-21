@@ -2,18 +2,21 @@ import random
 from http import HTTPStatus
 import dashscope
 from configs.model_configs import PROMPT_TEMPLATES, EAS_SERVICE_URL, EAS_SERVICE_TOKEN
+from configs import logger
 from typing import List
 from dashscope.api_entities.dashscope_response import (Message, Role)
 import streamlit as st
 from langchain_community.llms.pai_eas_endpoint import PaiEasEndpoint
+from langchain_core.prompts import PromptTemplate
 
 
 def call_pai_eas(retrieval_contents: List[str], question: str) -> str:
     if retrieval_contents:
-        msg_content = PROMPT_TEMPLATES.get('default').replace('{ context }', '\n'.join(retrieval_contents)).replace('{ question }', question)
+        prompt = PromptTemplate.from_template(PROMPT_TEMPLATES.get('default'))
+        msg_content = PROMPT_TEMPLATES.get('default').replace('{context}', '\n'.join(retrieval_contents)).replace('{question}', question)
     else:
-        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{ question }', question)
-
+        prompt = PromptTemplate.from_template(PROMPT_TEMPLATES.get('Empty'))
+        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{question}', question)
     messages = [Message(role=Role.SYSTEM, content='You are a helpful assistant.'),
                 Message(role=Role.USER, content=msg_content)]
     if len(st.session_state.qa_history) == 0:
@@ -23,8 +26,14 @@ def call_pai_eas(retrieval_contents: List[str], question: str) -> str:
     llm = PaiEasEndpoint(
         eas_service_url=EAS_SERVICE_URL,
         eas_service_token=EAS_SERVICE_TOKEN,
+        version='1.0',
     )
-    output = llm.invoke({})
+    llm_chain = prompt | llm
+    if retrieval_contents:
+        output = llm_chain.invoke({"context": '\n'.join(retrieval_contents), "question": question})
+    else:
+        output = llm_chain.invoke({"question": question})
+    logger.info(f"llm response: {output}")
     st.session_state.qa_history.append(
         Message(role='assistant',
                 content=str(output),
@@ -35,9 +44,9 @@ def call_pai_eas(retrieval_contents: List[str], question: str) -> str:
 
 def call_dashscope(retrieval_contents: List[str], question: str) -> str:
     if retrieval_contents:
-        msg_content = PROMPT_TEMPLATES.get('default').replace('{ context }', '\n'.join(retrieval_contents)).replace('{ question }', question)
+        msg_content = PROMPT_TEMPLATES.get('default').replace('{context}', '\n'.join(retrieval_contents)).replace('{question}', question)
     else:
-        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{ question }', question)
+        msg_content = PROMPT_TEMPLATES.get('Empty').replace('{question}', question)
 
     messages = [Message(role=Role.SYSTEM, content='You are a helpful assistant.'),
                 Message(role=Role.USER, content=msg_content)]
