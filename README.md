@@ -25,6 +25,7 @@ pip install -r requirements.txt
 export ALI_CLOUD_ACCESS_KEY_ID='AK' 
 export ALI_CLOUD_ACCESS_KEY_SECRET='SK'
 export DASHSCOPE_API_KEY='API_KEY'
+export DASHSCOPE_LLM_NAME='qwen-turbo'  # 模型名称，可选列表：https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm?spm=a2c4g.11186623.0.0.6f41528arzsTD9
 
 streamlit run Home.py
 ```

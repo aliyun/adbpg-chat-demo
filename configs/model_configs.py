@@ -1,6 +1,7 @@
 import os
 
 DASHSCOPE_API_KEY = os.environ.get('DASHSCOPE_API_KEY')
+DASHSCOPE_LLM_NAME = os.environ.get('DASHSCOPE_LLM_NAME', 'qwen-turbo')
 EAS_SERVICE_URL = os.environ.get('EAS_SERVICE_URL')
 EAS_SERVICE_TOKEN = os.environ.get('EAS_SERVICE_TOKEN')
 

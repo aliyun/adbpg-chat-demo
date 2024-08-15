@@ -1,7 +1,7 @@
 import random
 from http import HTTPStatus
 import dashscope
-from configs.model_configs import PROMPT_TEMPLATES, EAS_SERVICE_URL, EAS_SERVICE_TOKEN
+from configs.model_configs import PROMPT_TEMPLATES, EAS_SERVICE_URL, EAS_SERVICE_TOKEN, DASHSCOPE_LLM_NAME
 from configs import logger
 from typing import List
 from dashscope.api_entities.dashscope_response import (Message, Role)
@@ -55,7 +55,7 @@ def call_dashscope(retrieval_contents: List[str], question: str) -> str:
     else:
         st.session_state.qa_history.append(Message(role=Role.USER, content=msg_content))
     response = dashscope.Generation.call(
-        dashscope.Generation.Models.qwen_turbo,
+        DASHSCOPE_LLM_NAME,
         messages=messages,
         seed=random.randint(1, 10000),
         result_format='message',  # set the result to be "message" format.
