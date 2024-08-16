@@ -17,9 +17,9 @@ pip install -r requirements.txt
 
 ## 启动服务：
 
-如果使用灵机作为LLM：
+如果使用百炼作为LLM：
 
-准备AK，SK，灵积api-key，然后执行:
+准备AK，SK，百炼api-key，然后执行:
 
 ```shell
 export ALI_CLOUD_ACCESS_KEY_ID='AK' 
