@@ -58,10 +58,10 @@ class ADBPGClient:
         # 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_ID。,
         access_key_id=os.environ['ALIBABA_CLOUD_ACCESS_KEY_ID'],
         # 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_SECRET。,
-        access_key_secret=os.environ['ALIBABA_CLOUD_ACCESS_KEY_SECRET']
-        )
+        access_key_secret=os.environ['ALIBABA_CLOUD_ACCESS_KEY_SECRET'],
         # Endpoint 请参考 https://api.aliyun.com/product/gpdb
-        config.endpoint = f'gpdb.aliyuncs.com'
+        endpoint=os.environ['ADBPG_ENDPOINT']
+        )
         return gpdb20160503Client(config)
 
     def create_namespace(self,
