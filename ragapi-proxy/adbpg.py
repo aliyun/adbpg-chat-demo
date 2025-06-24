@@ -17,6 +17,8 @@ from typing import List, Dict, Optional, Union
 from typing import Optional
 from fastapi import FastAPI, Depends, Path
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import requests
+
 load_dotenv()
 
 app = FastAPI()
@@ -139,7 +141,7 @@ class ADBPGClient:
             namespace=namespace,
             namespace_password=namespace_password,
             collection=collection,
-            file_url_object = io.BytesIO(document),
+            file_url_object = io.BytesIO(self.get_file_bytes(document)),
             file_name=filename,
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
@@ -296,6 +298,21 @@ class ADBPGClient:
             # 诊断地址
             print(error.data.get("Recommend"))
             UtilClient.assert_as_string(error.message)
+
+    def get_file_bytes(self, document):
+    # 如果是以 http(s) 开头，认为是 URL
+        if isinstance(document, str) and document.startswith("http"):
+            response = requests.get(document)
+            response.raise_for_status()
+            return response.content
+        # 如果是 str，转为 bytes
+        elif isinstance(document, str):
+            return document.encode("utf-8")
+        # 如果已经是 bytes，直接返回
+        elif isinstance(document, bytes):
+            return document
+        else:
+            raise ValueError("Unsupported document type")
 
 
 class Response(BaseModel):
