@@ -1,0 +1,9 @@
+dotenv
+uvicorn
+fastapi
+alibabacloud-tea-openapi
+alibabacloud_gpdb20160503
+python-multipart
+funasr
+torch
+torchaudio
