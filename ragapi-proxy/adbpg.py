@@ -60,7 +60,12 @@ class ADBPGClient:
         # 必填，请确保代码运行环境设置了环境变量 ALIBABA_CLOUD_ACCESS_KEY_SECRET。,
         access_key_secret=os.environ['ALIBABA_CLOUD_ACCESS_KEY_SECRET'],
         # Endpoint 请参考 https://api.aliyun.com/product/gpdb
-        endpoint=os.environ['ADBPG_ENDPOINT']
+        endpoint=os.environ['ADBPG_ENDPOINT'],
+        # 下沉版调用需要以下参数
+        # protocol='http',
+        # user_agent="Python Client",
+        # region_id=os.getenv("ALIBABA_CLOUD_REGION_ID"),
+        # max_idle_conns=200
         )
         return gpdb20160503Client(config)
 
@@ -129,30 +134,33 @@ class ADBPGClient:
                        document:str,
                        chunk_size:int,
                        chunk_overlap: int,
-                       text_spliter: str
+                       text_spliter: str,
+                       vl_enhance: bool
     ) -> None:
         client = self.create_client()
-        gpdb_20160503_models.UploadDocumentAsyncAdvanceRequest(
+        gpdb_20160503_models.UploadDocumentAsyncRequest(
 
         )
-        upload_document_async_request = gpdb_20160503_models.UploadDocumentAsyncAdvanceRequest(
+        upload_document_async_request = gpdb_20160503_models.UploadDocumentAsyncRequest(
             region_id=os.getenv("ALIBABA_CLOUD_REGION_ID"),
             dbinstance_id=os.getenv("ADBPG_INSTANCE_ID"),
             namespace=namespace,
             namespace_password=namespace_password,
             collection=collection,
-            file_url_object = io.BytesIO(self.get_file_bytes(document)),
+            # file_url_object = io.BytesIO(self.get_file_bytes(document)),
+            file_url = document,
             file_name=filename,
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             document_loader_name='ADBPGLoader',
-            text_splitter_name="RecursiveCharacterTextSplitter"
+            text_splitter_name="RecursiveCharacterTextSplitter",
+            vl_enhance=vl_enhance
         )
         runtime = util_models.RuntimeOptions()
         try:
             # 复制代码运行请自行打印 API 的返回值
-            client.upload_document_async_advance(upload_document_async_request, runtime)
-            return Response(message="success", code=200)
+            response = client.upload_document_async(upload_document_async_request)
+            return Response(message=str(response.body), code=200)
         except Exception as error:
             # 此处仅做打印展示，请谨慎对待异常处理，在工程项目中切勿直接忽略异常。
             # 错误 message
@@ -185,13 +193,14 @@ class ADBPGClient:
             use_full_text_retrieval=True,
             hybrid_search="RRF",
             hybrid_search_args=hybrid_search_args,
-            recall_window=[-5, 5]
+            recall_window=[0, 0]
         )
         runtime = util_models.RuntimeOptions()
         try:
             # 复制代码运行请自行打印 API 的返回值
             res = client.query_content_with_options(query_content_request, runtime)
             merge_res = []
+            # print("res.body:", res.body)
             for item in res.body.window_matches.window_matches:
                tmp_res = item.window_match.window_match[0]
                for i in range(1, len(item.window_match.window_match)):
@@ -245,7 +254,7 @@ class ADBPGClient:
            dbinstance_id=os.getenv("ADBPG_INSTANCE_ID"),
            query=query,
            documents=docs,
-           model='bge-reranker-v2-minicpm-layerwise',
+        #    model='bge-reranker-v2-minicpm-layerwise',
            return_documents=False
        )
        runtime = util_models.RuntimeOptions()
@@ -355,6 +364,7 @@ class UploadDocument(BaseModel):
     chunk_size: int
     chunk_overlap: int
     text_spliter: str
+    vl_enhance: bool
 
 @app.post("/document/", response_model=Response)
 def upload_document(document: UploadDocument, api_key: str = Depends(verify_api_key)):
@@ -366,6 +376,7 @@ def upload_document(document: UploadDocument, api_key: str = Depends(verify_api_
     chunk_overlap = document.chunk_overlap
     file_name = document.file_name
     text_spliter = document.text_spliter
+    vl_enhance = document.vl_enhance
 
     return ADBPGClient().upload_document(namespace,
                                          namespace_passwd,
@@ -374,7 +385,8 @@ def upload_document(document: UploadDocument, api_key: str = Depends(verify_api_
                                          content,
                                          chunk_size,
                                          chunk_overlap,
-                                         text_spliter)
+                                         text_spliter,
+                                         vl_enhance)
 
 class Retrieval(BaseModel):
     knowledge_id: str

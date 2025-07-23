@@ -2,7 +2,7 @@ dotenv
 uvicorn
 fastapi
 alibabacloud-tea-openapi
-alibabacloud_gpdb20160503
+alibabacloud_gpdb20160503>=4.10.1
 python-multipart
 funasr
 torch
