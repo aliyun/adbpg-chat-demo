@@ -159,8 +159,8 @@ class ADBPGClient:
         runtime = util_models.RuntimeOptions()
         try:
             # 复制代码运行请自行打印 API 的返回值
-            client.upload_document_async(upload_document_async_request)
-            return Response(message="success", code=200)
+            response = client.upload_document_async(upload_document_async_request)
+            return Response(message=str(response.body), code=200)
         except Exception as error:
             # 此处仅做打印展示，请谨慎对待异常处理，在工程项目中切勿直接忽略异常。
             # 错误 message
