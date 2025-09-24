@@ -580,7 +580,7 @@ class DeleteDocument(BaseModel):
     file_name: str
 
 @app.delete("/document", status_code=200)
-async def delete_document(document: DeleteDocument):
+async def delete_document(document: DeleteDocument, api_key: str = Depends(verify_api_key)):
     #api_key: str = Depends(verify_api_key)
     """
     读取文件
@@ -590,7 +590,7 @@ async def delete_document(document: DeleteDocument):
     filename = document.file_name
     #namespace_passwd = api_key
     return ADBPGClient().delete_document(namespace,
-                                         "Aa123456",
+                                         api_key,
                                          col,
                                          filename)
 
