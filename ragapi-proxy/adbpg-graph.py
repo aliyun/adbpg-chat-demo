@@ -360,6 +360,38 @@ class ADBPGClient:
             print(error.data.get("Recommend"))
             UtilClient.assert_as_string(error.message)
 
+    def get_upload_document_job(self,
+                               namespace: str,
+                               namespace_password: str,
+                               collection: str,
+                               job_id: str
+    ) -> None:
+        """
+        获取文档上传任务状态
+        """
+        client = self.create_client()
+        get_upload_document_job_request = gpdb_20160503_models.GetUploadDocumentJobRequest(
+            region_id=os.getenv("ALIBABA_CLOUD_REGION_ID"),
+            dbinstance_id=os.getenv("ADBPG_INSTANCE_ID"),
+            namespace=namespace,
+            namespace_password=namespace_password,
+            collection=collection,
+            job_id=job_id,
+        )
+        runtime = util_models.RuntimeOptions()
+        try:
+            # 复制代码运行请自行打印 API 的返回值
+            response = client.get_upload_document_job_with_options(get_upload_document_job_request, runtime)
+            return Response(message=str(response.body), code=200)
+        except Exception as error:
+            # 此处仅做打印展示，请谨慎对待异常处理，在工程项目中切勿直接忽略异常。
+            # 错误 message
+            print("get_upload_document_job:" + error.message)
+            # 诊断地址
+            print(error.data.get("Recommend"))
+            UtilClient.assert_as_string(error.message)
+            return Response(message=error.message, code=400)
+
     def get_file_bytes(self, document):
     # 如果是以 http(s) 开头，认为是 URL
         if isinstance(document, str) and document.startswith("http"):
@@ -398,10 +430,10 @@ class Knowledge(BaseModel):
     knowledge_id: str
     metadata: str
     enable_graph: bool
-    llm_model: str
-    language: str
-    entities: list[str]
-    relations: list[str]
+    llm_model: Optional[str] = ""
+    language: Optional[str] = ""
+    entities: Optional[list[str]] = []
+    relations: Optional[list[str]] = []
 
 
 @app.post("/knowledge/", response_model=Response)
@@ -410,13 +442,20 @@ def create_collection(kb: Knowledge, api_key: str = Depends(verify_api_key)):
     col = kb.knowledge_id.split("_")[1]
     ns_pwd = api_key
     meta = kb.metadata
+    
+    # 处理可选字段
+    llm_model = kb.llm_model if kb.llm_model else ""
+    language = kb.language if kb.language else ""
+    entities = kb.entities if kb.entities else []
+    relations = kb.relations if kb.relations else []
+    
     ADBPGClient().create_namespace(ns, ns_pwd)
     return ADBPGClient().create_document_collection(ns, col, meta,
                                                     kb.enable_graph,
-                                                    kb.llm_model,
-                                                    kb.language,
-                                                    kb.entities,
-                                                    kb.relations)
+                                                    llm_model,
+                                                    language,
+                                                    entities,
+                                                    relations)
 
 
 class UploadDocument(BaseModel):
@@ -579,6 +618,10 @@ class DeleteDocument(BaseModel):
     knowledge_id: str
     file_name: str
 
+class GetUploadDocumentJob(BaseModel):
+    knowledge_id: str
+    job_id: str
+
 @app.delete("/document", status_code=200)
 async def delete_document(document: DeleteDocument, api_key: str = Depends(verify_api_key)):
     #api_key: str = Depends(verify_api_key)
@@ -593,6 +636,21 @@ async def delete_document(document: DeleteDocument, api_key: str = Depends(verif
                                          api_key,
                                          col,
                                          filename)
+
+@app.post("/get-upload-job", response_model=Response)
+async def get_upload_document_job(job_request: GetUploadDocumentJob, api_key: str = Depends(verify_api_key)):
+    """
+    获取文档上传任务状态
+    """
+    namespace = job_request.knowledge_id.split("_")[0]
+    col = job_request.knowledge_id.split("_")[1]
+    job_id = job_request.job_id
+    namespace_password = api_key
+    
+    return ADBPGClient().get_upload_document_job(namespace,
+                                                namespace_password,
+                                                col,
+                                                job_id)
 
 
 
