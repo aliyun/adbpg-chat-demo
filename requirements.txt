@@ -1,6 +1,6 @@
 alibabacloud_gpdb20160503==3.5.0
 alibabacloud_tea_openapi==0.3.8
-streamlit==1.30.0
+streamlit==1.37.0
 extra_streamlit_components==0.1.60
 streamlit_extras==0.3.5
 streamlit_modal==0.1.0
